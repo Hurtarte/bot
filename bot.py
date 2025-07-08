@@ -41,6 +41,8 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
         quantity=QUANTITY
     )
 
+    order_id = order['orderId']
+
     # Calculate TP and SL prices depending on side
     if side == "long":
         tp_price = round(current_price * (1 + TP_PERCENT), 2)
@@ -77,14 +79,6 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
         reduceOnly=True
     )
 
-    await update.message.reply_text(
-        f"{position_side} order placed!\n"
-        f"Entry Price: {current_price}\n"
-        f"Take Profit: {tp_price}\n"
-        f"Stop Loss: {sl_price}\n"
-        f"Order ID: {order['orderId']}"
-    )
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Bot is live. Use /long or /short to trade with TP/SL.")
 
@@ -94,9 +88,43 @@ async def long_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def short_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await place_orders(update, context, "short")
 
+async def close_position(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_chat.id != ALLOWED_CHAT_ID:
+        return
+
+    # Get current position info
+    positions = client.futures_position_information(symbol=SYMBOL)
+    position_data = next(p for p in positions if p["symbol"] == SYMBOL)
+    position_amt = float(position_data["positionAmt"])
+
+    if position_amt == 0:
+        await update.message.reply_text("No open position to close.")
+        return
+
+    side = SIDE_SELL if position_amt > 0 else SIDE_BUY
+    quantity = abs(position_amt)
+
+    # Send market close order
+    close_order = client.futures_create_order(
+        symbol=SYMBOL,
+        side=side,
+        type=ORDER_TYPE_MARKET,
+        quantity=quantity,
+        reduceOnly=True
+    )
+
+await update.message.reply_text(
+    f"{side.upper()} order placed!\n"
+    f"Order ID: {order_id}\n"
+    f"Entry Price: {current_price}\n"
+    f"Take Profit at: {tp_price}\n"
+    f"Stop Loss at: {sl_price}"
+)
+
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("long", long_command))
     app.add_handler(CommandHandler("short", short_command))
+    app.add_handler(CommandHandler("close", close_position))
     app.run_polling()
