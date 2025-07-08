@@ -96,10 +96,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Handle /long
 async def long_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ You've opened a LONG position.")
     await place_orders(update, context, "long")
 
 # Handle /short
 async def short_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ You've opened a SHORT position.")
     await place_orders(update, context, "short")
 
 # Handle /close
