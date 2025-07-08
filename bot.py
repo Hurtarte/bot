@@ -10,22 +10,28 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         symbol = context.args[0].upper()
         quantity = float(context.args[1])
-        leverage = int(context.args[2]) if len(context.args) > 2 else 20  # Default 20x
+        leverage = int(context.args[2]) if len(context.args) > 2 else 20
 
         # Set leverage
         client.futures_change_leverage(symbol=symbol, leverage=leverage)
 
+        # Debug: Show available balance and symbol info
+        balance = client.futures_account_balance()
+        symbol_info = client.futures_exchange_info()
+        await update.message.reply_text(f"📊 Balance: {balance}\n📈 Symbol: {symbol}")
+
+        # Place order
         order = client.futures_create_order(
             symbol=symbol,
             side='BUY',
             type='MARKET',
             quantity=quantity
         )
-        await update.message.reply_text(
-            f"✅ Buy order placed: {order['orderId']}\n🔧 Leverage: {leverage}x"
-        )
+        await update.message.reply_text(f"✅ Buy order placed: {order['orderId']}\n🔧 Leverage: {leverage}x")
     except Exception as e:
-        await update.message.reply_text(f"❌ Error placing buy order: {e}")
+        import traceback
+        traceback.print_exc()
+        await update.message.reply_text(f"❌ Error placing buy order:\n{str(e)}")
 
 async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
