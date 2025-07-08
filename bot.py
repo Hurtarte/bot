@@ -2,7 +2,6 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from binance.client import Client
 from config import BINANCE_API_KEY, BINANCE_API_SECRET, TELEGRAM_BOT_TOKEN
-const port = process.env.PORT || 4000 
 
 # Binance Futures client
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
