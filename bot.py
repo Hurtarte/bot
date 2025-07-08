@@ -1,8 +1,3 @@
-# config.py (DO NOT SHARE THIS FILE)
-BINANCE_API_KEY = "your_binance_api_key"
-BINANCE_API_SECRET = "your_binance_api_secret"
-TELEGRAM_BOT_TOKEN = "your_telegram_bot_token"
-
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from binance.client import Client
@@ -10,7 +5,8 @@ from config import BINANCE_API_KEY, BINANCE_API_SECRET, TELEGRAM_BOT_TOKEN
 
 # Binance Futures client
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
-client.FUTURES_URL = 'https://fapi.binance.com'
+client.FUTURES_URL = 'https://testnet.binancefuture.com'
+#client.FUTURES_URL = 'https://fapi.binance.com'
 
 # Telegram command: /buy BTCUSDT 0.001
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
