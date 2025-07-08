@@ -44,4 +44,4 @@ app.add_handler(CommandHandler("buy", buy))
 app.add_handler(CommandHandler("sell", sell))
 
 if __name__ == "__main__":
-    app.run()
+    app.run_polling()
