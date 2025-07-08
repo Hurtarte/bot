@@ -1,74 +1,67 @@
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from binance.client import Client
-from config import BINANCE_API_KEY, BINANCE_API_SECRET, TELEGRAM_BOT_TOKEN
+from binance.enums import *
 
+# === CONFIG ===
+TELEGRAM_TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+TELEGRAM_USER_ID = 5597787935  # Replace with your own Telegram user ID
+BINANCE_API_KEY = '018167649290c65467f1d01a01c86bca35c753200f86e608bee839766027075f'
+BINANCE_API_SECRET = '0b4dd75240e85334577ef40102c668cfe542b2ed694975f14e732f6dade8cf36'
+
+# Initialize Binance Testnet Client
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
-client.FUTURES_URL = 'https://testnet.binancefuture.com'
+client.FUTURES_URL = 'https://testnet.binancefuture.com/fapi'
+client.API_URL = client.FUTURES_URL
 
-async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
+logging.basicConfig(level=logging.INFO)
+
+# === Function to execute trade ===
+async def place_order(symbol, side):
     try:
-        symbol = context.args[0].upper()
-        quantity = float(context.args[1])
-        leverage = int(context.args[2]) if len(context.args) > 2 else 20
-
         # Set leverage
-        client.futures_change_leverage(symbol=symbol, leverage=leverage)
+        client.futures_change_leverage(symbol=symbol, leverage=20)
 
-        # Debug: Show available balance and symbol info
-        balance = client.futures_account_balance()
-        symbol_info = client.futures_exchange_info()
-        await update.message.reply_text(f"📊 Balance: {balance}\n📈 Symbol: {symbol}")
-
-        # Place order
-        order = client.futures_create_order(
-            symbol=symbol,
-            side='BUY',
-            type='MARKET',
-            quantity=quantity
-        )
-        await update.message.reply_text(f"✅ Buy order placed: {order['orderId']}\n🔧 Leverage: {leverage}x")
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        await update.message.reply_text(f"❌ Error placing buy order:\n{str(e)}")
-
-async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        symbol = context.args[0].upper()
-        quantity = float(context.args[1])
-        leverage = int(context.args[2]) if len(context.args) > 2 else 20  # Default 20x
-
-        # Set leverage
-        client.futures_change_leverage(symbol=symbol, leverage=leverage)
+        # Get quantity (hardcoded or calculated based on balance)
+        qty = 0.01  # Example: 0.01 BTC
 
         order = client.futures_create_order(
             symbol=symbol,
-            side='SELL',
-            type='MARKET',
-            quantity=quantity
+            side=SIDE_BUY if side == "buy" else SIDE_SELL,
+            type=ORDER_TYPE_MARKET,
+            quantity=qty
         )
-        await update.message.reply_text(
-            f"✅ Sell order placed: {order['orderId']}\n🔧 Leverage: {leverage}x"
-        )
+        return f"✅ Order placed: {side.upper()} {qty} {symbol}"
     except Exception as e:
-        await update.message.reply_text(f"❌ Error placing sell order: {e}")
+        return f"❌ Error: {e}"
 
-# Optional /leverage command still available if you want to set it manually
-async def leverage(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        symbol = context.args[0].upper()
-        lev = int(context.args[1])
-        response = client.futures_change_leverage(symbol=symbol, leverage=lev)
-        await update.message.reply_text(f"⚙️ Leverage for {symbol} set to {response['leverage']}x")
-    except Exception as e:
-        await update.message.reply_text(f"❌ Error setting leverage: {e}")
+# === Telegram Command Handler ===
+async def trade(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != TELEGRAM_USER_ID:
+        await update.message.reply_text("🚫 Unauthorized")
+        return
 
-# Bot setup
-app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-app.add_handler(CommandHandler("buy", buy))
-app.add_handler(CommandHandler("sell", sell))
-app.add_handler(CommandHandler("leverage", leverage))
+    if len(context.args) != 2:
+        await update.message.reply_text("Usage: /buy BTCUSDT or /sell ETHUSDT")
+        return
 
-if __name__ == "__main__":
+    command = update.message.text.lower()
+    action = command.split()[0][1:]  # 'buy' or 'sell'
+    symbol = context.args[1].upper()
+
+    result = await place_order(symbol, action)
+    await update.message.reply_text(result)
+
+# === Main Bot Setup ===
+def main():
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+
+    app.add_handler(CommandHandler("buy", trade))
+    app.add_handler(CommandHandler("sell", trade))
+
+    print("🤖 Bot is running...")
     app.run_polling()
+
+if __name__ == '__main__':
+    main()
