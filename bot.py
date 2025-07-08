@@ -89,9 +89,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Bot is live. Use /long or /short to trade with TP/SL.")
 
 async def long_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ You've opened a LONG position.")
     await place_orders(update, context, "long")
 
 async def short_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ You've opened a SHORT position.")
     await place_orders(update, context, "short")
 
 async def close_position(update: Update, context: ContextTypes.DEFAULT_TYPE):
