@@ -62,8 +62,7 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
         type=ORDER_TYPE_TAKE_PROFIT,
         quantity=QUANTITY,
         stopPrice=tp_price,
-        closePosition=True,
-        reduceOnly=True
+        closePosition=True
     )
 
     # Place Stop Loss order (STOP_MARKET)
