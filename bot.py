@@ -61,7 +61,7 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
         symbol=SYMBOL,
         side=tp_side,
         type=ORDER_TYPE_TAKE_PROFIT_LIMIT,
-        quantity=QUANTITY
+        quantity=QUANTITY,
         price=tp_price,                # Price you want to sell/buy at
         stopPrice=trigger_price,       # The trigger price
         timeInForce=TIME_IN_FORCE_GTC  # Required for limit orders
