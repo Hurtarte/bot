@@ -44,6 +44,7 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
     # Calculate TP and SL prices depending on side
     if side == "long":
         tp_price = round(current_price * (1 + TP_PERCENT), 2)
+        trigger_price = round(current_price * (1 + TP_PERCENT), 2)
         sl_price = round(current_price * (1 - SL_PERCENT), 2)
         tp_side = SIDE_SELL
         sl_side = SIDE_SELL
@@ -60,9 +61,10 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
         symbol=SYMBOL,
         side=tp_side,
         type=ORDER_TYPE_TAKE_PROFIT_LIMIT,
-        quantity=QUANTITY,
-        stopPrice=tp_price,
-        closePosition=True
+        quantity=QUANTITY
+        price=tp_price,                # Price you want to sell/buy at
+        stopPrice=trigger_price,       # The trigger price
+        timeInForce=TIME_IN_FORCE_GTC  # Required for limit orders
     )
 
     # Place Stop Loss order (STOP_MARKET)
