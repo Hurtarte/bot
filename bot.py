@@ -4,7 +4,6 @@ from binance.enums import *
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from dotenv import load_dotenv
-from binance.enums import ORDER_TYPE_TAKE_PROFIT_LIMIT
 
 load_dotenv()
 
