@@ -19,7 +19,7 @@ SYMBOL = "BTCUSDT"
 QUANTITY = 0.001  # Adjust this
 
 # TP/SL prices (example values, you can adjust or make dynamic)
-TP_PERCENT = 0.01  # 1% profit target
+TP_PERCENT = 0.7  # 70% profit target
 SL_PERCENT = 0.005  # 0.5% stop loss
 
 def get_price():
@@ -59,7 +59,7 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
     tp_order = client.futures_create_order(
         symbol=SYMBOL,
         side=tp_side,
-        type=ORDER_TYPE_TAKE_PROFIT_MARKET,
+        type=ORDER_TYPE_TAKE_PROFIT_LIMIT,
         quantity=QUANTITY,
         stopPrice=tp_price,
         closePosition=True,
