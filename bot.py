@@ -60,11 +60,10 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
     tp_order = client.futures_create_order(
         symbol=SYMBOL,
         side=tp_side,
-        type=ORDER_TYPE_TAKE_PROFIT_LIMIT,
-        quantity=QUANTITY,
-        price=tp_price,                # Price you want to sell/buy at
-        stopPrice=trigger_price,       # The trigger price
-        timeInForce=TIME_IN_FORCE_GTC  # Required for limit orders
+        type=ORDER_TYPE_TAKE_PROFIT_MARKET,
+        stopPrice=tp_price,       # Trigger price
+        closePosition=True,       # Close entire position
+        timeInForce=TIME_IN_FORCE_GTC
     )
 
     # Place Stop Loss order (STOP_MARKET)
