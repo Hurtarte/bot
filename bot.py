@@ -59,7 +59,7 @@ async def place_orders(update: Update, context: ContextTypes.DEFAULT_TYPE, side:
     tp_order = client.futures_create_order(
         symbol=SYMBOL,
         side=tp_side,
-        type=ORDER_TYPE_TAKE_PROFIT_LIMIT,
+        type=ORDER_TYPE_TAKE_PROFIT,
         quantity=QUANTITY,
         stopPrice=tp_price,
         closePosition=True,
